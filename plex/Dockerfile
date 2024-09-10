@@ -1,24 +1,27 @@
-# Use the official Neko base image from GitHub Container Registry
+# Use the correct Neko base image from GitHub Container Registry
 FROM ghcr.io/m1k1o/neko/base:latest
 
 # Switch to root user to install dependencies
 USER root
 
-# Install snapd and other necessary packages for Plex Desktop
+# Install dependencies for running AppImages
 RUN apt-get update && apt-get install -y \
-    snapd \
-    dbus-x11 \
+    wget \
+    fuse \
+    libfuse2 \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Enable and start snapd service
-RUN systemctl enable dbus && \
-    systemctl enable snapd
+# Download Plex Desktop AppImage
+RUN wget https://plex.tv/downloads/latest/5 -O /usr/local/bin/plex-desktop.AppImage
 
-# Install Plex Desktop client using snap
-RUN snap install plex-desktop
+# Make the AppImage executable
+RUN chmod +x /usr/local/bin/plex-desktop.AppImage
 
-# Ensure that snapd and Plex start automatically
+# Create a script to run Plex Desktop
+RUN echo '#!/bin/bash\n/usr/local/bin/plex-desktop.AppImage' > /usr/local/bin/start-plex.sh && chmod +x /usr/local/bin/start-plex.sh
+
+# Switch back to neko user
 USER neko
 
 # Expose necessary ports (if applicable)
