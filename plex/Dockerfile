@@ -9,11 +9,12 @@ RUN pacman-key --init && \
     pacman-key --populate archlinux && \
     pacman -Syyu --noconfirm
 
-# Install necessary dependencies for AUR helper yay
+# Install necessary dependencies for AUR helper yay and dbus
 RUN pacman -S --noconfirm \
     base-devel \
     git \
     wget \
+    dbus \
     fuse2 && \
     rm -rf /var/cache/pacman/pkg/*
 
@@ -38,8 +39,21 @@ RUN yay --save --answerdiff None --answerclean None
 # Switch back to root user
 USER root
 
-# Use yay to install Plex Desktop from AUR with flags to skip integrity checks and bypass systemd-related issues
-RUN yay -S --noconfirm plex-desktop --mflags "--skipinteg" --removemake
+# Enable and start dbus service to bypass systemd checks
+RUN dbus-uuidgen > /etc/machine-id && \
+    dbus-daemon --system
+
+# Download PKGBUILD files manually for plex-desktop and ffmpeg6.1
+RUN git clone https://aur.archlinux.org/plex-desktop.git /opt/plex-desktop && \
+    git clone https://aur.archlinux.org/ffmpeg6.1.git /opt/ffmpeg6.1
+
+# Build and install plex-desktop manually
+RUN cd /opt/plex-desktop && \
+    makepkg -si --noconfirm
+
+# Build and install ffmpeg6.1 manually
+RUN cd /opt/ffmpeg6.1 && \
+    makepkg -si --noconfirm
 
 # Clean up yay and package cache
 RUN yay -Yc --noconfirm && \
