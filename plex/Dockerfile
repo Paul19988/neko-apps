@@ -14,8 +14,7 @@ RUN pacman -S --noconfirm \
     base-devel \
     git \
     wget \
-    fuse2 \
-    libfuse && \
+    fuse2 && \
     rm -rf /var/cache/pacman/pkg/*
 
 # Clone yay (AUR helper) and install it
