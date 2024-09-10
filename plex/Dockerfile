@@ -1,5 +1,5 @@
 # Use the official neko base image
-FROM m1k1o/neko:debian
+FROM ghcr.io/m1k1o/neko:debian
 
 # Install necessary dependencies for Plex Desktop
 USER root
