@@ -7,7 +7,7 @@ USER root
 # Install necessary dependencies for AUR package installation
 RUN apt-get update && apt-get install -y \
     git \
-    base-devel \
+    build-essential \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
