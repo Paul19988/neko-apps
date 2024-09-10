@@ -88,6 +88,9 @@ RUN git clone https://aur.archlinux.org/plex-desktop.git /opt/plex-desktop && \
 # Change ownership of the directories to builduser
 RUN chown -R builduser:builduser /opt/plex-desktop /opt/ffmpeg6.1
 
+# Import the missing PGP key
+RUN sudo -u builduser gpg --recv-keys B18E8928B3948D64 || true
+
 # Switch back to non-root user to build and install ffmpeg6.1 first
 USER builduser
 RUN cd /opt/ffmpeg6.1 && \
