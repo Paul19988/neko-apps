@@ -15,7 +15,45 @@ RUN pacman -S --noconfirm \
     git \
     wget \
     dbus \
-    fuse2 && \
+    alsa-lib \
+    libgl \
+    hicolor-icon-theme \
+    fontconfig \
+    freetype2 \
+    harfbuzz \
+    lcms2 \
+    libdrm \
+    libjpeg-turbo \
+    libwebp \
+    libx11 \
+    libxcb \
+    libxcomposite \
+    libxdamage \
+    libxext \
+    libxfixes \
+    libxkbcommon \
+    libxkbfile \
+    libxrandr \
+    libxslt \
+    libxtst \
+    mesa \
+    minizip \
+    nspr \
+    nss \
+    opus \
+    xcb-util-renderutil \
+    libxss \
+    xcb-util-image \
+    libxkbcommon-x11 \
+    libxinerama \
+    xcb-util-keysyms \
+    xcb-util-wm \
+    snappy \
+    libva \
+    libpulse \
+    libxrender \
+    wayland \
+    qt6-base && \
     rm -rf /var/cache/pacman/pkg/*
 
 # Create a non-root user to build yay and install packages from AUR
@@ -50,15 +88,13 @@ RUN git clone https://aur.archlinux.org/plex-desktop.git /opt/plex-desktop && \
 # Change ownership of the directories to builduser
 RUN chown -R builduser:builduser /opt/plex-desktop /opt/ffmpeg6.1
 
-# Switch back to non-root user to run makepkg
+# Switch back to non-root user to build and install ffmpeg6.1 first
 USER builduser
+RUN cd /opt/ffmpeg6.1 && \
+    makepkg -si --noconfirm
 
 # Build and install plex-desktop manually
 RUN cd /opt/plex-desktop && \
-    makepkg -si --noconfirm
-
-# Build and install ffmpeg6.1 manually
-RUN cd /opt/ffmpeg6.1 && \
     makepkg -si --noconfirm
 
 # Switch back to root user
