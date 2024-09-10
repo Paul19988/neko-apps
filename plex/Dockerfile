@@ -4,22 +4,24 @@ FROM ghcr.io/m1k1o/neko/base:latest
 # Switch to root user to install dependencies
 USER root
 
-# Install dependencies for running AppImages
+# Install necessary dependencies for AUR package installation
 RUN apt-get update && apt-get install -y \
-    wget \
-    fuse \
-    libfuse2 \
+    git \
+    base-devel \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Download Plex Desktop AppImage
-RUN wget https://plex.tv/downloads/latest/5 -O /usr/local/bin/plex-desktop.AppImage
+# Install yay (AUR helper)
+RUN git clone https://aur.archlinux.org/yay.git /opt/yay && \
+    cd /opt/yay && \
+    makepkg -si --noconfirm && \
+    cd && rm -rf /opt/yay
 
-# Make the AppImage executable
-RUN chmod +x /usr/local/bin/plex-desktop.AppImage
+# Install Plex Desktop from AUR using yay
+RUN yay -S --noconfirm plex-desktop
 
-# Create a script to run Plex Desktop
-RUN echo '#!/bin/bash\n/usr/local/bin/plex-desktop.AppImage' > /usr/local/bin/start-plex.sh && chmod +x /usr/local/bin/start-plex.sh
+# Clean up yay cache and unnecessary packages
+RUN yay -Yc --noconfirm
 
 # Switch back to neko user
 USER neko
