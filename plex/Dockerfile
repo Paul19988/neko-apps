@@ -47,6 +47,9 @@ RUN dbus-uuidgen > /etc/machine-id && \
 RUN git clone https://aur.archlinux.org/plex-desktop.git /opt/plex-desktop && \
     git clone https://aur.archlinux.org/ffmpeg6.1.git /opt/ffmpeg6.1
 
+# Switch back to non-root user to run makepkg
+USER builduser
+
 # Build and install plex-desktop manually
 RUN cd /opt/plex-desktop && \
     makepkg -si --noconfirm
@@ -54,6 +57,9 @@ RUN cd /opt/plex-desktop && \
 # Build and install ffmpeg6.1 manually
 RUN cd /opt/ffmpeg6.1 && \
     makepkg -si --noconfirm
+
+# Switch back to root user
+USER root
 
 # Clean up yay and package cache
 RUN yay -Yc --noconfirm && \
