@@ -1,4 +1,4 @@
-name: "amd64 images"
+name: "Build and Push AMD64 Docker Images"
 
 on:
   push:
@@ -22,29 +22,35 @@ jobs:
       packages: write
 
     strategy:
-      # Will build all images even if some fail.
       matrix:
-        include:
-          - tag: plex
+        tag: [plex] # Add more tags here if necessary
+
     env:
       TAG_NAME: ${{ matrix.tag }}
+
     steps:
-      -
-        name: Checkout
+      - name: Checkout source code
         uses: actions/checkout@v2
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      -
-        name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
-      - 
-        name: Extract metadata (tags, labels) for Docker
-        uses: docker/metadata-action@v3
+
+      - name: Set up QEMU for multi-platform builds
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Install Snapcraft and Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y snapd
+          sudo systemctl start snapd
+          sudo snap install snapcraft --classic
+          sudo snap install plex-desktop # Install the required Snap app
+
+      - name: Extract metadata for Docker
         id: meta
+        uses: docker/metadata-action@v3
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ env.TAG_PREFIX }}${{ env.TAG_NAME }}
           tags: |
@@ -52,18 +58,19 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha,format=long
-      - 
-        name: Log in to the Container registry
-        uses: docker/login-action@v1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - 
-        name: Build and push
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: ${{ env.TAG_NAME }}
+          context: . # Set to the Docker build context (current directory or Dockerfile location)
+          file: ./Dockerfile # Path to Dockerfile, change if necessary
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}

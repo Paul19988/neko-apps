@@ -1,13 +1,12 @@
 # Use the correct Neko base image from GitHub Container Registry
 FROM ghcr.io/m1k1o/neko/base:latest
 
-# Switch to root user to install dependencies
+# Install snapd and necessary dependencies
 USER root
-
-# Install snapd and other necessary packages for Plex Desktop
 RUN apt-get update && apt-get install -y \
     snapd \
     dbus-x11 \
+    dumb-init \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
@@ -22,8 +21,9 @@ RUN snap install plex-desktop
 # Ensure that snapd and Plex start automatically
 USER neko
 
-# Expose necessary ports (if applicable)
+# Expose necessary ports
 EXPOSE 32400
 
-# Entry point to run Plex Desktop
+# Start snapd and Plex Desktop via dumb-init
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["snap", "run", "plex-desktop"]
