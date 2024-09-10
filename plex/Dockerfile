@@ -1,10 +1,10 @@
-# Use the official neko base image
-FROM ghcr.io/m1k1o/neko:debian
+# Use the official Neko base image from GitHub Container Registry
+FROM ghcr.io/m1k1o/neko:latest
 
-# Install necessary dependencies for Plex Desktop
+# Switch to root user to install dependencies
 USER root
 
-# Install snapd and other necessary packages
+# Install snapd and other necessary packages for Plex Desktop
 RUN apt-get update && apt-get install -y \
     snapd \
     dbus-x11 \
@@ -18,7 +18,7 @@ RUN systemctl enable dbus && \
 # Install Plex Desktop client using snap
 RUN snap install plex-desktop
 
-# Make sure Plex Desktop runs as the default application in the container
+# Ensure that snapd and Plex start automatically
 USER neko
 
 # Expose necessary ports (if applicable)

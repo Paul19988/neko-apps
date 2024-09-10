@@ -26,11 +26,6 @@ jobs:
       matrix:
         include:
           - tag: plex
-          - tag: discord
-          - tag: kodi
-          - tag: vncviewer
-          - tag: vscode
-          - tag: zoom
     env:
       TAG_NAME: ${{ matrix.tag }}
     steps:
