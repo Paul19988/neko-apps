@@ -1,27 +1,28 @@
-ARG BASE_IMAGE=m1k1o/neko:base
-FROM $BASE_IMAGE
+# Use the official neko base image
+FROM m1k1o/neko:debian
 
-#
-# install required libraries
-RUN set -eux; apt-get update; \
-    apt-get install -y --no-install-recommends libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 openbox; \
-    #
-    # clean up
-    apt-get clean -y; \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/* /tmp/*;
+# Install necessary dependencies for Plex Desktop
+USER root
 
-#
-# install snapd and plex client
-RUN set -eux; apt-get update; \
-    apt-get install -y --no-install-recommends snapd; \
-    snap install snapd; \
-    snap install plex-desktop; \
-    #
-    # clean up
-    apt-get clean -y; \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/* /tmp/*;
+# Install snapd and other necessary packages
+RUN apt-get update && apt-get install -y \
+    snapd \
+    dbus-x11 \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
-#
-# copy configuration files
-COPY supervisord.conf /etc/neko/supervisord/plex.conf
-COPY openbox.xml /etc/neko/openbox.xml
+# Enable and start snapd service
+RUN systemctl enable dbus && \
+    systemctl enable snapd
+
+# Install Plex Desktop client using snap
+RUN snap install plex-desktop
+
+# Make sure Plex Desktop runs as the default application in the container
+USER neko
+
+# Expose necessary ports (if applicable)
+EXPOSE 32400
+
+# Entry point to run Plex Desktop using supervisord
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
