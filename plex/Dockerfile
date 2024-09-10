@@ -4,9 +4,13 @@ FROM archlinux:latest
 # Switch to root user to install dependencies
 USER root
 
+# Initialize pacman keys and refresh the mirror list
+RUN pacman-key --init && \
+    pacman-key --populate archlinux && \
+    pacman -Syyu --noconfirm
+
 # Install necessary dependencies including AUR helper yay
-RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm \
+RUN pacman -S --noconfirm \
     base-devel \
     git \
     wget \
