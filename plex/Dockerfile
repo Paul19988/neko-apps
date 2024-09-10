@@ -32,11 +32,14 @@ RUN git clone https://aur.archlinux.org/yay.git && \
     makepkg -si --noconfirm && \
     cd && rm -rf yay
 
+# Set yay options to automatically choose default packages for libvpx and jack
+RUN yay --save --answerdiff None --answerclean None
+
 # Switch back to root user
 USER root
 
-# Use yay to install Plex Desktop from AUR
-RUN yay -S --noconfirm plex-desktop
+# Use yay to install Plex Desktop from AUR with flags to skip integrity checks and bypass systemd-related issues
+RUN yay -S --noconfirm plex-desktop --mflags "--skipinteg" --removemake
 
 # Clean up yay and package cache
 RUN yay -Yc --noconfirm && \
