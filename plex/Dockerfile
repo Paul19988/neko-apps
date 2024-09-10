@@ -9,7 +9,7 @@ RUN pacman-key --init && \
     pacman-key --populate archlinux && \
     pacman -Syyu --noconfirm
 
-# Install necessary dependencies including AUR helper yay
+# Install necessary dependencies for AUR helper yay
 RUN pacman -S --noconfirm \
     base-devel \
     git \
@@ -17,11 +17,23 @@ RUN pacman -S --noconfirm \
     fuse2 && \
     rm -rf /var/cache/pacman/pkg/*
 
-# Clone yay (AUR helper) and install it
-RUN git clone https://aur.archlinux.org/yay.git /opt/yay && \
-    cd /opt/yay && \
+# Create a non-root user to build yay and install packages from AUR
+RUN useradd -m builduser && \
+    echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
+    chmod 0440 /etc/sudoers.d/builduser
+
+# Switch to non-root user for yay installation
+USER builduser
+WORKDIR /home/builduser
+
+# Clone yay (AUR helper) and install it as a non-root user
+RUN git clone https://aur.archlinux.org/yay.git && \
+    cd yay && \
     makepkg -si --noconfirm && \
-    cd && rm -rf /opt/yay
+    cd && rm -rf yay
+
+# Switch back to root user
+USER root
 
 # Use yay to install Plex Desktop from AUR
 RUN yay -S --noconfirm plex-desktop
@@ -30,11 +42,8 @@ RUN yay -S --noconfirm plex-desktop
 RUN yay -Yc --noconfirm && \
     rm -rf /var/cache/pacman/pkg/*
 
-# Switch back to non-root user if needed (adjust depending on Neko setup)
-#USER neko
-
 # Expose necessary ports (if applicable)
 EXPOSE 32400
 
-# Entry point to run Plex Desktop using supervisord or any script
+# Entry point to run Plex Desktop
 CMD ["/usr/bin/plex-desktop"]
