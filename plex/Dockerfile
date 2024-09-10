@@ -47,6 +47,9 @@ RUN dbus-uuidgen > /etc/machine-id && \
 RUN git clone https://aur.archlinux.org/plex-desktop.git /opt/plex-desktop && \
     git clone https://aur.archlinux.org/ffmpeg6.1.git /opt/ffmpeg6.1
 
+# Change ownership of the directories to builduser
+RUN chown -R builduser:builduser /opt/plex-desktop /opt/ffmpeg6.1
+
 # Switch back to non-root user to run makepkg
 USER builduser
 
