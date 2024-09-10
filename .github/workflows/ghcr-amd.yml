@@ -25,6 +25,7 @@ jobs:
       # Will build all images even if some fail.
       matrix:
         include:
+          - tag: plex
           - tag: discord
           - tag: kodi
           - tag: vncviewer
