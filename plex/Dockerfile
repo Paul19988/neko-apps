@@ -1,5 +1,5 @@
 # Use the official Neko base image from GitHub Container Registry
-FROM ghcr.io/m1k1o/neko:latest
+FROM ghcr.io/m1k1o/neko/base:latest
 
 # Switch to root user to install dependencies
 USER root
