@@ -1,5 +1,6 @@
 # Use the correct Neko base image from GitHub Container Registry
-FROM ghcr.io/m1k1o/neko/base:latest
+ARG BASE_IMAGE=ghcr.io/m1k1o/neko/base:latest
+FROM $BASE_IMAGE
 
 # Install snapd and necessary dependencies
 USER root
