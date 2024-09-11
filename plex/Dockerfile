@@ -6,24 +6,20 @@ USER root
 RUN apt-get update && apt-get install -y \
     snapd \
     dbus-x11 \
-    dumb-init \
+    fuse \
+    squashfs-tools \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Create a symlink for /snap to ensure Snap is accessible
-RUN ln -s /var/lib/snapd/snap /snap
+# Create necessary directories and symlinks for snapd
+RUN mkdir -p /var/lib/snapd/seed /var/lib/snapd/snaps /var/snap && \
+    ln -s /var/lib/snapd/snap /snap
 
-# Start snapd and install Plex Desktop
-RUN /usr/lib/snapd/snapd & \
-    sleep 10 && \
-    snap install plex-desktop
+# Manually start snapd and install Plex Desktop via Snap
+RUN systemctl is-active --quiet snapd || (snap install core && snap install plex-desktop)
 
 # Expose necessary ports (if applicable)
 EXPOSE 32400
 
-# Use dumb-init to manage the snapd service and start Plex Desktop
-USER neko
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-
-# Start snapd and run Plex Desktop
-CMD ["/bin/sh", "-c", "/usr/lib/snapd/snapd & sleep 5 && snap run plex-desktop"]
+# Start Snapd manually and run Plex Desktop in the foreground
+CMD ["/bin/sh", "-c", "/usr/lib/snapd/snapd & sleep 10 && snap run plex-desktop"]
