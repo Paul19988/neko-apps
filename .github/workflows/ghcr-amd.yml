@@ -46,7 +46,6 @@ jobs:
           sudo apt-get install -y snapd
           sudo systemctl start snapd
           sudo snap install snapcraft --classic
-          sudo snap install plex-desktop # Install the required Snap app
 
       - name: Extract metadata for Docker
         id: meta
@@ -69,11 +68,12 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: . # Set to the Docker build context (current directory or Dockerfile location)
-          file: ./Dockerfile # Path to Dockerfile, change if necessary
+          context: . # This assumes your Dockerfile is in the root directory
+          file: ./Dockerfile # Path to Dockerfile, adjust if in a subdirectory
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ env.BASE_IMAGE }}
+
