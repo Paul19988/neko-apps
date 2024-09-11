@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
 # Enable snapd service
 RUN systemctl enable snapd
 
+RUN systemctl start snapd
+
 # Create a symlink for /snap to ensure Snap is accessible
 RUN ln -s /var/lib/snapd/snap /snap
 
