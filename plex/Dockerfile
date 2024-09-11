@@ -1,5 +1,6 @@
 # Use the correct Neko base image from GitHub Container Registry
-FROM ghcr.io/m1k1o/neko/base:latest
+ARG BASE_IMAGE=ghcr.io/m1k1o/neko:base
+FROM $BASE_IMAGE
 
 # Install Flatpak and necessary dependencies
 USER root
@@ -21,6 +22,9 @@ EXPOSE 32400
 
 # Set environment variables for Flatpak
 ENV XDG_RUNTIME_DIR=/run/user/1000
+
+# copy configuation files
+COPY supervisord.conf /etc/neko/supervisord/plex.conf
 
 # Run Plex Desktop from Flatpak
 CMD ["flatpak", "run", "tv.plex.PlexDesktop"]
