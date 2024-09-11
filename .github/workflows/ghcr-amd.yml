@@ -32,6 +32,9 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
 
+      - name: Verify Dockerfile Location
+        run: ls -al # This step helps check where the Dockerfile is located
+
       - name: Set up QEMU for multi-platform builds
         uses: docker/setup-qemu-action@v2
 
@@ -68,12 +71,11 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: . # This assumes your Dockerfile is in the root directory
-          file: ./Dockerfile # Path to Dockerfile, adjust if in a subdirectory
+          context: . # Adjust this if your Dockerfile is in a subdirectory
+          file: ./Dockerfile # Adjust this if your Dockerfile is in a subdirectory
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ env.BASE_IMAGE }}
-
