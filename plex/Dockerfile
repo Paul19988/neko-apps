@@ -1,25 +1,26 @@
 # Use the correct Neko base image from GitHub Container Registry
 FROM ghcr.io/m1k1o/neko/base:latest
 
-# Install snapd and necessary dependencies
+# Install Flatpak and necessary dependencies
 USER root
 RUN apt-get update && apt-get install -y \
-    snapd \
-    dbus-x11 \
-    fuse \
-    squashfs-tools \
+    flatpak \
+    xdg-desktop-portal \
+    xdg-desktop-portal-gtk \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Create necessary directories and symlinks for snapd
-RUN mkdir -p /var/lib/snapd/seed /var/lib/snapd/snaps /var/snap && \
-    ln -s /var/lib/snapd/snap /snap
+# Add Flathub repository
+RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-# Manually start snapd and install Plex Desktop via Snap
-RUN systemctl is-active --quiet snapd || (snap install core && snap install plex-desktop)
+# Install Plex Desktop from Flathub
+RUN flatpak install -y flathub tv.plex.PlexDesktop
 
 # Expose necessary ports (if applicable)
 EXPOSE 32400
 
-# Start Snapd manually and run Plex Desktop in the foreground
-CMD ["/bin/sh", "-c", "/usr/lib/snapd/snapd & sleep 10 && snap run plex-desktop"]
+# Set environment variables for Flatpak
+ENV XDG_RUNTIME_DIR=/run/user/1000
+
+# Run Plex Desktop from Flatpak
+CMD ["flatpak", "run", "tv.plex.PlexDesktop"]
