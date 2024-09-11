@@ -23,7 +23,8 @@ jobs:
 
     strategy:
       matrix:
-        tag: [plex]
+        include:
+          - tag: plex
 
     env:
       TAG_NAME: ${{ matrix.tag }}
@@ -61,11 +62,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - 
+        name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: . # Ensure the context is correct for your Dockerfile
-          file: ./Dockerfile # Ensure this points to the correct Dockerfile path
+          context: ${{ env.TAG_NAME }}
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
