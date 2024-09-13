@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # Install Plex Desktop from Flathub
-RUN flatpak install -y flathub tv.plex.PlexDesktop
+RUN flatpak install -y flathub tv.plex.PlexHTPC
 
 # Expose necessary ports (if applicable)
 EXPOSE 32400
@@ -29,4 +29,4 @@ ENV XDG_RUNTIME_DIR=/run/user/1000
 COPY supervisord.conf /etc/neko/supervisord/plex.conf
 
 # Run Plex Desktop from Flatpak
-CMD ["flatpak", "run", "tv.plex.PlexDesktop"]
+RUN flatpak run tv.plex.PlexHTPC
