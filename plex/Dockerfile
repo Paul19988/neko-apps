@@ -2,6 +2,8 @@
 ARG BASE_IMAGE=ghcr.io/m1k1o/neko:base
 FROM $BASE_IMAGE
 
+LABEL m1k1o.neko_rooms.api_version=2
+
 # Install Flatpak and necessary dependencies
 USER root
 RUN apt-get update && apt-get install -y \
