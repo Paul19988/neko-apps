@@ -13,7 +13,11 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-RUN systemctl dbus start
+RUN apt-get install -y dbus
+
+RUN mkdir -p /var/run/dbus
+
+RUN dbus-daemon --config-file=/usr/share/dbus-1/system.conf --print-address
 
 # Add Flathub repository
 RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
